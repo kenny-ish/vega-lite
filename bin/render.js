@@ -5,12 +5,8 @@ import path from 'path';
 import args from './args.js';
 import read from './read.js';
 import {compile} from '../build/index.js';
-import {readFileSync} from 'fs';
+import {load, locale as localeOptions} from './load.js';
 import {exit} from 'process';
-
-function load(file) {
-  return readFileSync(file, 'utf8');
-}
 
 const Levels = {
   error: vega.Error,
@@ -30,7 +26,7 @@ export function render(type, callback, opt) {
   const loglevel = Levels[String(arg.loglevel).toLowerCase()] || vega.Warn;
 
   // load config file, if specified
-  const config = arg.config ? load(arg.config) : null;
+  const config = arg.config ? load(arg.config, 'config') : null;
 
   // set output image scale factor
   const scale = arg.scale || undefined;
@@ -45,10 +41,7 @@ export function render(type, callback, opt) {
   }
 
   // locale options, load custom number/time formats if specified
-  const locale = {
-    number: arg.format ? load(arg.format) : null,
-    time: arg.timeFormat ? load(arg.timeFormat) : null,
-  };
+  const locale = localeOptions(arg);
 
   // instantiate view and invoke headless render method
   function r(vlSpec) {
